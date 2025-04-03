@@ -37,17 +37,17 @@ public class OrderService {
 					if (pizzas.size() != order.getPizzasID().size()) {
 						return Mono.error(new RuntimeException("One or more pizzas not found"));
 					}
+					return orderRepository.save(order).flatMap(saved -> {
+						// Create OrderDetails object
+						OrderDetails orderDetails = new OrderDetails();
+						orderDetails.setOrderDetailId(order.getOrderId()); // Map Order ID to OrderDetails ID
+						orderDetails.setPizzas(pizzas); // Set list of valid Pizza objects
+						orderDetails.setPizzasID(order.getPizzasID()); // Set list of pizza IDs
+						orderDetails.setStatus("Preparing"); // Initial status
+						orderDetails.setTimestamp(LocalDateTime.now()); // Current timestamp
 
-					// Create OrderDetails object
-					OrderDetails orderDetails = new OrderDetails();
-					orderDetails.setOrderDetailId(order.getOrderId()); // Map Order ID to OrderDetails ID
-					orderDetails.setPizzas(pizzas); // Set list of valid Pizza objects
-					orderDetails.setPizzasID(order.getPizzasID()); // Set list of pizza IDs
-					orderDetails.setStatus("Preparing"); // Initial status
-					orderDetails.setTimestamp(LocalDateTime.now()); // Current timestamp
-
-					orderRepository.save(order);
-					return orderDetailsRepository.save(orderDetails); // Save and return OrderDetails
+						return orderDetailsRepository.save(orderDetails); // Save and return OrderDetails
+					});
 				});
 	}
 
@@ -62,13 +62,14 @@ public class OrderService {
 	public Mono<OrderDetails> updateOrderStatus(String id) {
 		return orderDetailsRepository.findById(id).flatMap(order -> {
 			order.setStatus("Delivered");
-
 			return orderDetailsRepository.save(order);
 		});
 	}
 
-	public Mono<Void> deleteOrder(String id) {
-		orderRepository.findById(id).flatMap(existingOrder -> orderRepository.deleteById(id));
-		return orderDetailsRepository.findById(id).flatMap(existingOrder -> orderDetailsRepository.deleteById(id));
+	public Mono<Void> cancelOrder(String id) {
+		return orderRepository.findById(id).flatMap(existingOrder -> orderRepository.deleteById(id))
+				.then(orderDetailsRepository.findById(id).flatMap(existingOrderDetails -> orderDetailsRepository
+						.deleteById(existingOrderDetails.getOrderDetailId())));
+
 	}
 }
