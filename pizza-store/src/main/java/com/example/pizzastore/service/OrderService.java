@@ -3,6 +3,9 @@ package com.example.pizzastore.service;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.pizzastore.model.Order;
@@ -26,10 +29,6 @@ public class OrderService {
 	@Autowired
 	private PizzaRepository pizzaRepository;
 
-	OrderService(OrderDetailsRepository orderDetailsRepository) {
-		this.orderDetailsRepository = orderDetailsRepository;
-	}
-
 	public Mono<OrderDetails> createOrder(Order order) {
 		// Validate each pizza ID in the order and fetch corresponding Pizza objects
 		return Flux.fromIterable(order.getPizzasID()).flatMap(pizzaRepository::findById).collectList()
@@ -51,14 +50,17 @@ public class OrderService {
 				});
 	}
 
+	@Cacheable(value = "orderDetails", key = "#id")
 	public Mono<OrderDetails> getOrderById(String id) {
 		return orderDetailsRepository.findById(id);
 	}
 
+	@Cacheable(value = "orders")
 	public Flux<OrderDetails> getAllOrders() {
 		return orderDetailsRepository.findAll();
 	}
 
+	@CachePut(value = "orderDetails", key = "#id")
 	public Mono<OrderDetails> updateOrderStatus(String id) {
 		return orderDetailsRepository.findById(id).flatMap(order -> {
 			order.setStatus("Delivered");
@@ -66,6 +68,7 @@ public class OrderService {
 		});
 	}
 
+	@CacheEvict(value = "orderDetails", key = "#id")
 	public Mono<Void> cancelOrder(String id) {
 		return orderRepository.findById(id).flatMap(existingOrder -> orderRepository.deleteById(id))
 				.then(orderDetailsRepository.findById(id).flatMap(existingOrderDetails -> orderDetailsRepository
