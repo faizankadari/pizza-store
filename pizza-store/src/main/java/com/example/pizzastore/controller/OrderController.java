@@ -62,7 +62,9 @@ public class OrderController {
 	// Delete an order by ID
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.OK)
-	public Mono<Void> deleteOrder(@PathVariable String id) {
-		return orderService.deleteOrder(id).switchIfEmpty(Mono.error(new RuntimeException("Pizza not found")));
+	public Mono<ResponseEntity<String>> cancelOrder(@PathVariable String id) {
+		return orderService.cancelOrder(id).
+				then(Mono.just(ResponseEntity.ok("Order Canceled Successfully"))).
+				switchIfEmpty(Mono.error(new RuntimeException("Order not found")));
 	}
 }
