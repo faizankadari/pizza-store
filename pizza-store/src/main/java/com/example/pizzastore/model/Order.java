@@ -13,8 +13,8 @@ import lombok.Data;
 public class Order {
 	@Id
 	private String orderId;
-	
+
 	@NotNull
 	private List<Integer> pizzasID;
-
+	
 }

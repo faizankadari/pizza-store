@@ -16,6 +16,7 @@ public class Pizza {
 
 	@Id
 	private Integer id;
+	
 	@NotBlank(message = "Pizza name must not be blank")
 	private String name;
 
