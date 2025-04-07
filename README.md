@@ -33,11 +33,11 @@ Run Application using
 
 | Method | Endpoint          | Description                     | Request Body                          | Response Body                       |
 |--------|-------------------|---------------------------------|---------------------------------------|-------------------------------------|
-| POST   | `/api/pizzas`     | Create a new pizza              | `{name, description, toppings, size, price}` | Created pizza object               |
+| POST   | `/api/pizzas`     | Create a new pizza              | `{name, description, toppings, size, price,quantity}` | Created pizza object               |
 | GET    | `/api/pizzas/{id}`| Get a pizza by ID               | None                                  | Pizza object                        |
 | GET    | `/api/pizzas`     | Get all pizzas                  | None                                  | List of all pizzas                  |
 | GET    | `/api/pizzas/search` | Search pizzas by name           | `name` query parameter                | List of matching pizzas             |
-| PUT    | `/api/pizzas/{id}`| Update an existing pizza        | `{name, description, toppings, size, price}` | Updated pizza object               |
+| PUT    | `/api/pizzas/{id}`| Update an existing pizza        | `{name, description, toppings, size, price,quantity}` | Updated pizza object               |
 | DELETE | `/api/pizzas/{id}`| Delete a pizza by ID            | None                                  | `"Pizza Deleted Successfully"`      |
 
 ### Sample Request for POST and PUT Method
@@ -48,6 +48,7 @@ Run Application using
   "description": "Classic cheese and tomato pizza",
   "toppings": ["cheese", "paneer"],
   "size": "Medium",
+  "quantity": 100
   "price": 8.99
 }**
 - **Note: For now, change the ID every time while adding a new object.**
@@ -56,7 +57,7 @@ Run Application using
 
 | Method | Endpoint                | Description              | Request Body           | Response Body                   |
 |--------|-------------------------|--------------------------|------------------------|---------------------------------|
-| POST   | `/api/orders`           | Create a new order       | `{orderID, pid}`       | Created order details object    |
+| POST   | `/api/orders`           | Create a new order       | `{orderId, pizzasID}`       | Created order details object    |
 | GET    | `/api/orders/{id}`      | Get an order by ID       | None                   | Order details object            |
 | GET    | `/api/orders`           | Get all orders           | None                   | List of all orders              |
 | PUT    | `/api/orders/{id}/status` | Update order status      | `{status}`             | Updated order object            |
@@ -67,7 +68,8 @@ Run Application using
     "orderId": "1",
     "pizzasID": [
         1
-    ]
+    ],
+    "quantity": 100
 }**
 - **Note: For now, change the ID every time while adding a new object.**
 
