@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.pizzastore.model.Order;
 import com.example.pizzastore.model.OrderDetails;
+import com.example.pizzastore.model.Pizza;
 import com.example.pizzastore.repository.OrderDetailsRepository;
 import com.example.pizzastore.repository.OrderRepository;
 import com.example.pizzastore.repository.PizzaRepository;
@@ -31,24 +32,39 @@ public class OrderService {
 	@Autowired
 	private PizzaRepository pizzaRepository;
 
-	public Mono<OrderDetails> createOrder(Order order) {
-		log.info("Entering cancelOrder method in service with order id: " + order.getOrderId());
+	public Mono<Object> createOrder(Order order) {
+		log.info("Entering createOrder method in service with order id: " + order.getOrderId());
+
 		// Validate each pizza ID in the order and fetch corresponding Pizza objects
 		return Flux.fromIterable(order.getPizzasID()).flatMap(pizzaRepository::findById).collectList()
 				.flatMap(pizzas -> {
 					if (pizzas.size() != order.getPizzasID().size()) {
-						return Mono.error(new RuntimeException("One or more pizzas not found"));
+						return Mono.just("One or more pizzas not found");
 					}
-					return orderRepository.save(order).flatMap(saved -> {
+					// Validate quantity for each pizza
+					for (int i = 0; i < pizzas.size(); i++) {
+						if (order.getQuantity() > pizzas.get(i).getQuantity()) {
+							return Mono
+									.just("Ordered quantity not available for pizza ID " + order.getPizzasID().get(i));
+						}
+					}
+					// Update quantity of each pizza
+					Flux<Pizza> updatedPizzas = Flux.fromIterable(pizzas).flatMap(pizza -> {
+						pizza.setQuantity(pizza.getQuantity() - order.getQuantity());
+						return pizzaRepository.save(pizza);
+					});
+
+					return updatedPizzas.then(orderRepository.save(order)).flatMap(saved -> {
 						// Create OrderDetails object
 						OrderDetails orderDetails = new OrderDetails();
 						orderDetails.setOrderDetailId(order.getOrderId()); // Map Order ID to OrderDetails ID
 						orderDetails.setPizzas(pizzas); // Set list of valid Pizza objects
 						orderDetails.setPizzasID(order.getPizzasID()); // Set list of pizza IDs
+						orderDetails.setQuantity(order.getQuantity()); // Set quantity
 						orderDetails.setStatus("Preparing"); // Initial status
 						orderDetails.setTimestamp(LocalDateTime.now()); // Current timestamp
 
-						return orderDetailsRepository.save(orderDetails); // Save and return OrderDetails
+						return Mono.just(orderDetails); // Return OrderDetails
 					});
 				});
 	}

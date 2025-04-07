@@ -31,8 +31,7 @@ public class OrderController {
 	// Create a new order
 	@PostMapping
 	@ResponseStatus(HttpStatus.OK)
-	public Mono<OrderDetails> createOrder(@Valid @RequestBody Order order) {
-		System.out.println("Controller");
+	public Mono<Object> createOrder(@Valid @RequestBody Order order) {
 		return orderService.createOrder(order);
 	}
 

@@ -46,10 +46,12 @@ public class PizzaService {
 	public Mono<Pizza> updatePizza(Integer id, Pizza pizza) {
 		log.info("Entering updatePizza method in service with pizza id: " + id);
 		return pizzaRepository.findById(id).flatMap(existingPizza -> {
+			// Update all values
 			pizza.setId(pizza.getId());
 			pizza.setName(pizza.getName());
 			pizza.setPrice(pizza.getPrice());
 			pizza.setSize(pizza.getSize());
+			pizza.setQuantity(pizza.getQuantity());
 			pizza.setDescription(pizza.getDescription());
 			pizza.setToppings(pizza.getToppings());
 			return pizzaRepository.save(pizza);
