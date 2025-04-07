@@ -28,7 +28,11 @@ public class Pizza {
 	@NotBlank(message = "Size must be Small or Medium or Large")
 	private String size;
 
+	@NotNull
 	@Positive(message = "Price must be positive")
 	private double price;
+	
+	@Positive(message = "Quantity must be positive")
+	private int quantity;
 
 }

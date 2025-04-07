@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 @Document(collection = "ordersdetails")
@@ -21,11 +22,16 @@ public class OrderDetails {
 	@NotEmpty(message = "Order must contain at least one pizza")
 	private List<Pizza> pizzas;
 
+	@Positive(message = "Quantity must be positive")
+	@NotNull
+	private int quantity;
+	
+	@NotNull
 	private List<Integer> pizzasID;
 
 	@NotBlank(message = "Order status must not be blank")
-	private String status; // e.g., "Preparing", "Delivered"
-
+	private String status; 
+	
 	@NotNull
 	private LocalDateTime timestamp = LocalDateTime.now();
 

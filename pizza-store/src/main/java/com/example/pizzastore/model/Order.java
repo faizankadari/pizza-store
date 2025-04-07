@@ -6,6 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 @Document(collection = "orders")
@@ -17,4 +18,7 @@ public class Order {
 	@NotNull
 	private List<Integer> pizzasID;
 	
+	@Positive(message = "Quantity must be positive")
+	@NotNull
+	private int quantity;
 }
