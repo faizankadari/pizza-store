@@ -31,7 +31,6 @@ public class PizzaService {
 		return pizzaRepository.findById(id);
 	}
 
-	@Cacheable(value = "allPizzas")
 	public Flux<Pizza> getAllPizzas() {
 		log.info("Entering getAllPizzas method");
 		return pizzaRepository.findAll();

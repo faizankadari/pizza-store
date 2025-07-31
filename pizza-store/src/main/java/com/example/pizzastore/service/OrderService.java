@@ -75,7 +75,6 @@ public class OrderService {
 		return orderDetailsRepository.findById(id);
 	}
 
-	@Cacheable(value = "orders")
 	public Flux<OrderDetails> getAllOrders() {
 		log.info("Entering getAllOrders method in service");
 		return orderDetailsRepository.findAll();
